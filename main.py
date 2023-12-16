@@ -18,15 +18,27 @@ def get_token():
     return "".join(answer.get("token").split())
 
 
+def should_verify():
+    answer = prompt([
+        {
+            "type": "confirm",
+            "name": "validate",
+            "message": "Should the token's signature be verified?",
+            "default": True
+        }
+    ])
+    return answer.get("validate")
+
+
 def get_secret():
-    answers = prompt([
+    answer = prompt([
         {
             "type": "input",
             "name": "secret",
-            "message": "Please enter the secret",
+            "message": "Please enter the secret?",
         }
     ])
-    return answers.get("secret")
+    return answer.get("secret")
 
 
 def get_header(token):
@@ -47,15 +59,26 @@ def get_payload(token, secret=None, verify=False):
         return False
 
 
-token = get_token()
-secret = get_secret()
+def print_output(header, payload, verify=None):
+    print(f"Header\n{dumps(header, indent=4)}")
+    print("==============================")
+    print(f"Payload\n{dumps(payload, indent=4)}")
+    print("==============================")
+    print(f"Verified: {verify if verify else 'Not Requested'}")
 
-header = get_header(token)
-payload = get_payload(token)
-verify = get_payload(token, secret, verify=True)
 
-print(f"Header\n{dumps(header, indent=4)}")
-print("==============================")
-print(f"Payload\n{dumps(payload, indent=4)}")
-print("==============================")
-print(f"Verified: {verify}")
+def main():
+    token = get_token()
+    header = get_header(token)
+    payload = get_payload(token)
+    verify = should_verify()
+    if verify:
+        secret = get_secret()
+        verify = get_payload(token, secret, verify=True)
+        print_output(header, payload, verify)
+        return
+    print_output(header, payload, verify)
+
+
+if __name__ == "__main__":
+    main()
