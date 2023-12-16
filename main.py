@@ -15,7 +15,7 @@ def get_token():
             "message": "Please enter the token"
         }
             ])
-    return answer.get("token")
+    return "".join(answer.get("token").split())
 
 
 def get_secret():
